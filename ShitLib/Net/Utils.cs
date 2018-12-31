@@ -38,5 +38,10 @@ namespace ShitLib.Net
                 offset += available;
             }
         }
-    }
+
+	    public static long GetTimeStampSeconds()
+	    {
+		    return (DateTime.UtcNow.ToUniversalTime().Ticks - 621355968000000000L) / 10000000;
+	    }
+	}
 }
