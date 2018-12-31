@@ -1,1 +1,3 @@
-# Danmaku Linker
+# ShitLib
+
+A library for Danmaku linking.
