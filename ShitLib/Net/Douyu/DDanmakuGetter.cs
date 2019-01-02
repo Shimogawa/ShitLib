@@ -9,11 +9,13 @@ using ShitLib.Net.Douyu.MessageTypes;
 
 namespace ShitLib.Net.Douyu
 {
-	class DDanmakuGetter
+	public class DDanmakuGetter : IDanmakuGetter
 	{
 		private const string HOST = "openbarrage.douyutv.com";
+		private const string ICON_URL = "https://apic.douyucdn.cn/upload/{0}_big.jpg";
 		private const int PORT = 8601;
 		private const int SEND_HEADER_CODE = 689;
+		private const int SERVER_HEADER_CODE = 690;
 
 		private int roomID;
 		private bool isConnected;
@@ -35,29 +37,58 @@ namespace ShitLib.Net.Douyu
 			this.roomID = roomID;
 		}
 
-		public void Start()
+		public bool Connect()
 		{
-			Connect();
+			return internal_Connect();
 		}
 
-		private void Connect()
+		public void Disconnect()
+		{
+			if (isConnected)
+			{
+				Logout();
+				isConnected = false;
+				client.Close();
+				stream.Close();
+			}
+		}
+
+		private bool internal_Connect()
 		{
 			client = new TcpClient();
 			client.Connect(HOST, PORT);
 
 			if (!client.Connected)
 			{
-				throw new Exception("Fuck me");
+				return false;
+				//throw new Exception("Fuck me");
 			}
 			isConnected = true;
-			DanmakuList.AddDanmaku(new MessageInfo<DMessageType, DMessage>(
-				DMessageType.Log, new DMessage($"链接房间 {roomID} 成功")));
 			stream = client.GetStream();
+			listenThread = new Thread(KeepListen);
+			listenThread.Start();
+
+			EnterRoom();
+			EnterGroup();
 
 			heartbeatThread = new Thread(KeepHeartBeat);
 			heartbeatThread.Start();
-			listenThread = new Thread(KeepListen);
-			listenThread.Start();
+			return true;
+		}
+
+		private void EnterRoom()
+		{
+			SendData($"type@=loginreq/roomid@={roomID}/\0");
+		}
+
+		private void EnterGroup()
+		{
+			SendData($"type@=joingroup/rid@={roomID}/gid@=-9999/\0");
+		}
+
+		private void Logout()
+		{
+			SendData("type@=logout/\0");
 		}
 
 		private void KeepListen()
@@ -68,12 +99,38 @@ namespace ShitLib.Net.Douyu
 				try
 				{
 					stream.Read(buffer, 0, 4);
-
+					var len1 = BitConverter.ToInt32(buffer, 0);
+					stream.Read(buffer, 4, 4);
+					var len2 = BitConverter.ToInt32(buffer, 4);
+					stream.Read(buffer, 8, 4);
+					var msgType = BitConverter.ToInt32(buffer, 8);
+					if (msgType != SERVER_HEADER_CODE)
+						throw new Exception("Wrong message.");
+					stream.Read(buffer, 12, len1 - 8);
+					var body = Encoding.UTF8.GetString(buffer, 12, len1 - 8);
+					var dict = ParseMessage(body);
+					switch (dict["type"])
+					{
+						case "loginres":    // Login result
+							DanmakuList.AddDanmaku(new MessageInfo<DMessageType, DMessage>(
+								DMessageType.EnterRoom, new DMessage($"链接房间 {roomID} 成功")));
+							break;
+						case "chatmsg":     // Danmaku
+							int color = dict.ContainsKey("col") ? int.Parse(dict["col"]) : 0;
+							var user = GetUser(dict);
+							DanmakuList.AddDanmaku(new MessageInfo<DMessageType, DMessage>(
+								DMessageType.Danmaku, new DDanmaku(user, dict["txt"], color)));
+							break;
+						default:
+							break;
+					}
 				}
-				catch (Exception)
+				catch (Exception e)
 				{
+					Console.WriteLine(e);
 					continue;
 				}
+				Thread.Sleep(1000);
 			}
 		}
 
@@ -90,7 +147,7 @@ namespace ShitLib.Net.Douyu
 		private bool SendData(string msg)
 		{
 			var body = Encoding.UTF8.GetBytes(msg);
-			var length = body.Length + 8;
+			var length = body.Length + 9;
 			var sendData = new byte[length + 4];
 			byte[] i32 = BitConverter.GetBytes(length);
 			Array.Copy(i32, 0, sendData, 0, 4);
@@ -103,6 +160,19 @@ namespace ShitLib.Net.Douyu
 			return true;
 		}
 
+		private static DUser GetUser(IReadOnlyDictionary<string, string> dict)
+		{
+			var icon = dict.ContainsKey("ic") ? string.Format(ICON_URL, dict["ic"]) : null;
+			bool rg = dict.ContainsKey("rg");
+			bool pg = dict.ContainsKey("pg");
+			var badge = dict.ContainsKey("bnn") ? new DBadge(dict["bnn"], int.Parse(dict["bl"])) : null;
+			int? nobelLevel = dict.ContainsKey("nl") ? (int?)int.Parse(dict["nl"]) : null;
+
+			return new DUser(
+				dict["nn"], int.Parse(dict["uid"]), int.Parse(dict["level"]),
+				icon, rg, pg, nobelLevel, badge);
+		}
+
 		private static readonly char[]     arraySplitter = new[] { '/' };
 		private static readonly string[]   kvSplitter    = new[] { "@=" };
 		private static Dictionary<string, string> ParseMessage(string msg)
@@ -111,8 +181,8 @@ namespace ShitLib.Net.Douyu
 			var body = msg.Split(arraySplitter, StringSplitOptions.RemoveEmptyEntries);
 			foreach (var s in body)
 			{
-				var ss = s.Split(kvSplitter, StringSplitOptions.RemoveEmptyEntries);
-
+				if (s == "\0") break;
+				var ss = s.Split(kvSplitter, StringSplitOptions.None);
 				ss[1] = ss[1].Replace("@A", "@").Replace("@S", "/");
 				dict.Add(ss[0], ss[1]);
 			}

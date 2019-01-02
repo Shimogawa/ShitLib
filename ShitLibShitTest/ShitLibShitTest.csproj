@@ -4,15 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E615A251-EEBF-4369-A836-814108331D17}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ShitLib</RootNamespace>
-    <AssemblyName>ShitLib</AssemblyName>
+    <ProjectGuid>{D1AFEE2B-56E6-4B7F-8C33-976D5CD6604C}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>ShitLibShitTest</RootNamespace>
+    <AssemblyName>ShitLibShitTest</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -30,8 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="ShitLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ShitLib\bin\Debug\ShitLib.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -43,31 +47,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Net\Bilibili\BException.cs" />
-    <Compile Include="Net\Bilibili\BLiveDanmaku\BDanmakuGetter.cs" />
-    <Compile Include="Net\Bilibili\BLiveDanmaku\BMessageType.cs" />
-    <Compile Include="Net\Bilibili\BLiveDanmaku\MessageTypes\BDanmaku.cs" />
-    <Compile Include="Net\Bilibili\BLiveDanmaku\MessageTypes\BGift.cs" />
-    <Compile Include="Net\Bilibili\BLiveDanmaku\MessageTypes\BMessage.cs" />
-    <Compile Include="Net\Bilibili\BLiveDanmaku\MessageTypes\BOtherMsg.cs" />
-    <Compile Include="Net\Bilibili\BLiveDanmaku\MessageTypes\BWelcome.cs" />
-    <Compile Include="Net\Douyu\DBadge.cs" />
-    <Compile Include="Net\Douyu\DUser.cs" />
-    <Compile Include="Net\Douyu\MessageTypes\DDanmaku.cs" />
-    <Compile Include="Net\IDanmakuGetter.cs" />
-    <Compile Include="Net\DanmakuList.cs" />
-    <Compile Include="Net\Douyu\DDanmakuGetter.cs" />
-    <Compile Include="Net\Douyu\DMessageType.cs" />
-    <Compile Include="Net\Douyu\MessageTypes\DMessage.cs" />
-    <Compile Include="Net\Message.cs" />
-    <Compile Include="Net\MessageInfo.cs" />
-    <Compile Include="Net\MessageType.cs" />
-    <Compile Include="Net\Utils.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

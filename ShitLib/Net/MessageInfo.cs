@@ -14,5 +14,10 @@ namespace ShitLib.Net
 			MessageType = type;
 			Message = message;
 		}
+
+		public override string ToString()
+		{
+			return Message.ToString();
+		}
 	}
 }

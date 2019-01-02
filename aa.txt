@@ -1,0 +1,39 @@
+{type, chatmsg},
+{rid, 5630372},
+{ct, 1},
+{uid, 34989625},
+{nn, Lackblackandblue},
+{txt, 夏天  你这不给活路啊},
+{cid, 9568f033575d4ed9edd9960000000000},
+{ic, avanew/face/201703/20/13/2643506b8aa05fae89abf27ff2b14e5e},
+{level, 19},
+{sahf, 0},
+{rg, 4},          // 房管
+{cst, 1546350262070},
+{bnn, 柔包子},    // badge name
+{bl, 11},         // badge level
+{brid, 5630372},
+{hc, 92a84aec4b0b1a2b0ebc0f99680b87dc},
+{el, },
+{lk, },
+{fl, 11}
+
+
+{type, chatmsg},
+{rid, 5630372},
+{uid, 186439496},
+{nn, 宁家军丶点关注},
+{txt, 新年快乐呀呀呀},
+{cid, 9568f033575d4ed9ffd9960000000000},
+{ic, avanew/face/201802/25/22/d35dc68cd6bedbbc0f90d92e87376751},
+{level, 31},
+{sahf, 0},
+{nl, 1},
+{cst, 1546350237425},
+{bnn, 宁采臣},
+{bl, 11},
+{brid, 1048142},
+{hc, 20815c3c4b1a678006d55de1340f8d76},
+{cbid, 97186},
+{el, eid@A=1500000113/etp@A=1/sc@A=1/ef@A=0//},
+{lk, }

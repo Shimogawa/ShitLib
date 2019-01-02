@@ -4,7 +4,7 @@ namespace ShitLib.Net
 {
 	public class DanmakuList<TMsgType, TMsg>
 	{
-		private LinkedList<MessageInfo<TMsgType, TMsg>> danmakuList = new LinkedList<MessageInfo<TMsgType, TMsg>>();
+		private Queue<MessageInfo<TMsgType, TMsg>> danmakuList = new Queue<MessageInfo<TMsgType, TMsg>>();
 
 		public DanmakuList()
 		{
@@ -12,7 +12,7 @@ namespace ShitLib.Net
 
 		public void AddDanmaku(MessageInfo<TMsgType, TMsg> danmaku)
 		{
-			danmakuList.AddLast(danmaku);
+			danmakuList.Enqueue(danmaku);
 		}
 
 		public IEnumerable<MessageInfo<TMsgType, TMsg>> KeepGetting()
@@ -22,8 +22,7 @@ namespace ShitLib.Net
 			{
 				if (!IsEmpty())
 				{
-					temp = danmakuList.First.Value;
-					danmakuList.RemoveFirst();
+					temp = danmakuList.Dequeue();
 					yield return temp;
 				}
 			}
@@ -32,8 +31,7 @@ namespace ShitLib.Net
 		public MessageInfo<TMsgType, TMsg> GetFirst()
 		{
 			if (IsEmpty()) return null;
-			var temp = danmakuList.First.Value;
-			danmakuList.RemoveFirst();
+			var temp = danmakuList.Dequeue();
 			return temp;
 		}
 

@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27703.2035
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShitLib", "ShitLib\ShitLib.csproj", "{E615A251-EEBF-4369-A836-814108331D17}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShitLibShitTest", "ShitLibShitTest\ShitLibShitTest.csproj", "{D1AFEE2B-56E6-4B7F-8C33-976D5CD6604C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{E615A251-EEBF-4369-A836-814108331D17}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E615A251-EEBF-4369-A836-814108331D17}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E615A251-EEBF-4369-A836-814108331D17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1AFEE2B-56E6-4B7F-8C33-976D5CD6604C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1AFEE2B-56E6-4B7F-8C33-976D5CD6604C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1AFEE2B-56E6-4B7F-8C33-976D5CD6604C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1AFEE2B-56E6-4B7F-8C33-976D5CD6604C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

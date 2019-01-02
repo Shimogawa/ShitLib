@@ -12,7 +12,7 @@ using ShitLib.Net.Bilibili.BLiveDanmaku.MessageTypes;
 
 namespace ShitLib.Net.Bilibili.BLiveDanmaku
 {
-	public class BDanmakuGetter
+	public class BDanmakuGetter : IDanmakuGetter
 	{
 		private const string LIVE_URL = "http://live.bilibili.com/";
 		private const string CID_URL = "http://live.bilibili.com/api/player?id=cid:";
@@ -40,13 +40,13 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 			DanmakuList = new DanmakuList<BMessageType, BMessage>();
 		}
 
-		public void StartLoop()
+		public bool Connect()
 		{
 			while (true)
 			{
 				try
 				{
-					Connect();
+					internal_Connect();
 					break;
 				}
 				catch (TimeoutException)
@@ -57,41 +57,44 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 				catch (WebException)
 				{
 					DanmakuList.AddDanmaku(new MessageInfo<BMessageType, BMessage>(
-						BMessageType.Log, new BOtherMsg("Web error. Trying again.")));
+						BMessageType.Log, new BOtherMsg("Web error. Connection failed.")));
+					return false;
 				}
 			}
 
 			if (_state == LiveState.Offline)
 			{
 				Console.WriteLine("The streamer is not online.");
-				return;
+				return false;
 			}
-			InitListener();
-
+			StartListen();
+			return true;
 		}
 
-		private void Connect()
+		private void internal_Connect()
 		{
-			var request = (HttpWebRequest)WebRequest.Create(LIVE_URL + _roomUrlID);
-			request.Method = "GET";
-			request.UserAgent =
-				"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36";
-			request.Timeout = 10000;
+			//var request = (HttpWebRequest)WebRequest.Create(LIVE_URL + _roomUrlID);
+			//request.Method = "GET";
+			//request.UserAgent =
+			//	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36";
+			//request.Timeout = 10000;
+			//string response;
+			//var a = request.GetResponse();
+			//using (var responseStream = a.GetResponseStream())
+			//{
+			//	using (var reader = new StreamReader(responseStream, Encoding.UTF8))
+			//	{
+			//		response = reader.ReadToEnd();
+			//	}
+			//}
+
+			//var regex = new Regex("\"room_id\":(\\d+)");
+			//var found = regex.Matches(response)[0].Value;
+			//_trueID = int.Parse(found.Substring(found.IndexOf(':') + 1));
+			_trueID = _roomUrlID;
 			string response;
-			var a = request.GetResponse();
-			using (var responseStream = a.GetResponseStream())
-			{
-				using (var reader = new StreamReader(responseStream, Encoding.UTF8))
-				{
-					response = reader.ReadToEnd();
-				}
-			}
 
-			var regex = new Regex("\"room_id\":(\\d+)");
-			var found = regex.Matches(response)[0].Value;
-			_trueID = int.Parse(found.Substring(found.IndexOf(':') + 1));
-
-			request = (HttpWebRequest)WebRequest.Create(CID_URL + _trueID);
+			var request = (HttpWebRequest)WebRequest.Create(CID_URL + _trueID);
 			request.Method = "GET";
 			request.UserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36";
 			request.Timeout = 10000;
@@ -136,7 +139,7 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 			//            Console.WriteLine(_host);
 		}
 
-		private void InitListener()
+		private void StartListen()
 		{
 			_client = new TcpClient();
 			//            var endpoint = new IPEndPoint(IPAddress.Parse(_host), PORT);
