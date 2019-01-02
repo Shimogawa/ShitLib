@@ -1,5 +1,5 @@
 ﻿
-namespace ShitLib.Net
+namespace ShitLib.Net.MessageTypes
 {
 	public class Message
 	{

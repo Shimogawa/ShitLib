@@ -25,11 +25,11 @@ namespace ShitLib.Net.Douyu
 		private Thread heartbeatThread;
 		private Thread listenThread;
 
-		public DanmakuList<DMessageType, DMessage> DanmakuList { get; }
+		public DanmakuList<MessageType, DMessage> DanmakuList { get; }
 
 		private DDanmakuGetter()
 		{
-			DanmakuList = new DanmakuList<DMessageType, DMessage>();
+			DanmakuList = new DanmakuList<MessageType, DMessage>();
 		}
 
 		public DDanmakuGetter(int roomID) : this()
@@ -104,22 +104,30 @@ namespace ShitLib.Net.Douyu
 					var len2 = BitConverter.ToInt32(buffer, 4);
 					stream.Read(buffer, 8, 4);
 					var msgType = BitConverter.ToInt32(buffer, 8);
-					if (msgType != SERVER_HEADER_CODE)
-						throw new Exception("Wrong message.");
-					stream.Read(buffer, 12, len1 - 8);
+					//if (msgType != SERVER_HEADER_CODE)
+					//	throw new Exception("Wrong message.");
+					//stream.Read(buffer, 12, len1 - 8);
+					stream.ReadB(buffer, 12, len1 - 8);
 					var body = Encoding.UTF8.GetString(buffer, 12, len1 - 8);
 					var dict = ParseMessage(body);
 					switch (dict["type"])
 					{
 						case "loginres":    // Login result
-							DanmakuList.AddDanmaku(new MessageInfo<DMessageType, DMessage>(
-								DMessageType.EnterRoom, new DMessage($"链接房间 {roomID} 成功")));
+							DanmakuList.AddDanmaku(new MessageInfo<MessageType, DMessage>(
+								MessageType.EnterRoom, new DMessage($"链接房间 {roomID} 成功")));
 							break;
 						case "chatmsg":     // Danmaku
 							int color = dict.ContainsKey("col") ? int.Parse(dict["col"]) : 0;
 							var user = GetUser(dict);
-							DanmakuList.AddDanmaku(new MessageInfo<DMessageType, DMessage>(
-								DMessageType.Danmaku, new DDanmaku(user, dict["txt"], color)));
+							DanmakuList.AddDanmaku(new MessageInfo<MessageType, DMessage>(
+								MessageType.Danmaku, new DDanmaku(user, dict["txt"], color)));
+							break;
+						case "dgb":			// Gifts
+							var amount = dict.ContainsKey("gfcnt") ? int.Parse(dict["gfcnt"]) : 1;
+							user = GetUser(dict);
+							var hits = dict.ContainsKey("hits") ? int.Parse(dict["hits"]) : 1;
+							DanmakuList.AddDanmaku(new MessageInfo<MessageType, DMessage>(
+								MessageType.Gift, new DGift(user, int.Parse(dict["gfid"]), amount, hits)));
 							break;
 						default:
 							break;
@@ -130,7 +138,6 @@ namespace ShitLib.Net.Douyu
 					Console.WriteLine(e);
 					continue;
 				}
-				Thread.Sleep(1000);
 			}
 		}
 
@@ -163,7 +170,7 @@ namespace ShitLib.Net.Douyu
 		private static DUser GetUser(IReadOnlyDictionary<string, string> dict)
 		{
 			var icon = dict.ContainsKey("ic") ? string.Format(ICON_URL, dict["ic"]) : null;
-			bool rg = dict.ContainsKey("rg");
+			bool rg = dict.ContainsKey("rg") && int.Parse(dict["rg"]) > 3;
 			bool pg = dict.ContainsKey("pg");
 			var badge = dict.ContainsKey("bnn") ? new DBadge(dict["bnn"], int.Parse(dict["bl"])) : null;
 			int? nobelLevel = dict.ContainsKey("nl") ? (int?)int.Parse(dict["nl"]) : null;
@@ -183,6 +190,7 @@ namespace ShitLib.Net.Douyu
 			{
 				if (s == "\0") break;
 				var ss = s.Split(kvSplitter, StringSplitOptions.None);
+				if (ss.Length != 2) continue;
 				ss[1] = ss[1].Replace("@A", "@").Replace("@S", "/");
 				dict.Add(ss[0], ss[1]);
 			}

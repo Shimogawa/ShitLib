@@ -9,6 +9,6 @@ namespace ShitLib.Net
 		OnlineViewerInfo,
 		Log,
 		SysMsg,
-		Other
+		Others
 	}
 }

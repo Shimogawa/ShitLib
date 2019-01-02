@@ -11,7 +11,7 @@ namespace ShitLib.Net.Douyu
 			"骑士",
 			"子爵",
 			"伯爵",
-			"勋爵",
+			"公爵",
 			"国王",
 			"皇帝"
 		};

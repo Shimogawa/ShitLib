@@ -32,12 +32,13 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 		private TcpClient _client;
 		private NetworkStream _stream;
 		private LiveState _state;
-		public DanmakuList<BMessageType, BMessage> DanmakuList { get; private set; }
+
+		public DanmakuList<MessageType, BMessage> DanmakuList { get; private set; }
 
 		public BDanmakuGetter(int roomUrlID)
 		{
 			_roomUrlID = roomUrlID;
-			DanmakuList = new DanmakuList<BMessageType, BMessage>();
+			DanmakuList = new DanmakuList<MessageType, BMessage>();
 		}
 
 		public bool Connect()
@@ -51,13 +52,13 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 				}
 				catch (TimeoutException)
 				{
-					DanmakuList.AddDanmaku(new MessageInfo<BMessageType, BMessage>(
-						BMessageType.Log, new BOtherMsg("Request time out. Trying again.")));
+					DanmakuList.AddDanmaku(new MessageInfo<MessageType, BMessage>(
+						MessageType.Log, new BOtherMsg("Request time out. Trying again.")));
 				}
 				catch (WebException)
 				{
-					DanmakuList.AddDanmaku(new MessageInfo<BMessageType, BMessage>(
-						BMessageType.Log, new BOtherMsg("Web error. Connection failed.")));
+					DanmakuList.AddDanmaku(new MessageInfo<MessageType, BMessage>(
+						MessageType.Log, new BOtherMsg("Web error. Connection failed.")));
 					return false;
 				}
 			}
@@ -152,8 +153,8 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 				throw new Exception("Fuck me");
 			}
 
-			DanmakuList.AddDanmaku(new MessageInfo<BMessageType, BMessage>(
-				BMessageType.Log, new BOtherMsg($"链接房间 {_roomUrlID} 成功")));
+			DanmakuList.AddDanmaku(new MessageInfo<MessageType, BMessage>(
+				MessageType.Log, new BOtherMsg($"链接房间 {_roomUrlID} 成功")));
 			_stream = _client.GetStream();
 
 			var listenThread = new Thread(KeepListen);
@@ -217,8 +218,8 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 									//                                Console.WriteLine($"Viewing: {viewing}");
 									if (viewing >= 3)
 									{
-										DanmakuList.AddDanmaku(new MessageInfo<BMessageType, BMessage>(
-											BMessageType.OnlineViewerInfo,
+										DanmakuList.AddDanmaku(new MessageInfo<MessageType, BMessage>(
+											MessageType.OnlineViewerInfo,
 											new BOtherMsg($"当前观众：{viewing}")));
 									}
 									break;
@@ -336,12 +337,12 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 			return Encoding.UTF8.GetString(arr, offset, count);
 		}
 
-		private static MessageInfo<BMessageType, BMessage> ParseDanmaku(byte[] data, int offset, int count)
+		private static MessageInfo<MessageType, BMessage> ParseDanmaku(byte[] data, int offset, int count)
 		{
 			var json = Encoding.UTF8.GetString(data, offset, count);
 			var jobj = JObject.Parse(json);
 			var cmd = jobj["cmd"].Value<string>();
-			MessageInfo<BMessageType, BMessage> info = null;
+			MessageInfo<MessageType, BMessage> info = null;
 			if (cmd == "DANMU_MSG")
 			{
 				var danmaku = jobj["info"][1].Value<string>();
@@ -368,20 +369,20 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 					prefix[2] = null;
 				}
 
-				info = new MessageInfo<BMessageType, BMessage>(BMessageType.Danmaku, new BDanmaku(prefix, user, danmaku));
+				info = new MessageInfo<MessageType, BMessage>(MessageType.Danmaku, new BDanmaku(prefix, user, danmaku));
 			}
 			else if (cmd == "SEND_GIFT")
 			{
 				var giftName = jobj["data"]["giftName"].Value<string>();
 				var user = jobj["data"]["uname"].Value<string>();
 				var num = jobj["data"]["num"].Value<int>();
-				info = new MessageInfo<BMessageType, BMessage>(
-					BMessageType.Gift, new BGift(user, giftName, num));
+				info = new MessageInfo<MessageType, BMessage>(
+					MessageType.Gift, new BGift(user, giftName, num));
 			}
 			else if (cmd == "WELCOME")
 			{
 				var user = jobj["data"]["uname"].Value<string>();
-				info = new MessageInfo<BMessageType, BMessage>(BMessageType.EnterRoom, new BWelcome(user));
+				info = new MessageInfo<MessageType, BMessage>(MessageType.EnterRoom, new BWelcome(user));
 			}
 
 			return info;

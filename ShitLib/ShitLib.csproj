@@ -45,23 +45,23 @@
   <ItemGroup>
     <Compile Include="Net\Bilibili\BException.cs" />
     <Compile Include="Net\Bilibili\BLiveDanmaku\BDanmakuGetter.cs" />
-    <Compile Include="Net\Bilibili\BLiveDanmaku\BMessageType.cs" />
     <Compile Include="Net\Bilibili\BLiveDanmaku\MessageTypes\BDanmaku.cs" />
     <Compile Include="Net\Bilibili\BLiveDanmaku\MessageTypes\BGift.cs" />
     <Compile Include="Net\Bilibili\BLiveDanmaku\MessageTypes\BMessage.cs" />
     <Compile Include="Net\Bilibili\BLiveDanmaku\MessageTypes\BOtherMsg.cs" />
     <Compile Include="Net\Bilibili\BLiveDanmaku\MessageTypes\BWelcome.cs" />
+    <Compile Include="Net\Douyu\MessageTypes\DGift.cs" />
     <Compile Include="Net\Douyu\DBadge.cs" />
     <Compile Include="Net\Douyu\DUser.cs" />
     <Compile Include="Net\Douyu\MessageTypes\DDanmaku.cs" />
     <Compile Include="Net\IDanmakuGetter.cs" />
     <Compile Include="Net\DanmakuList.cs" />
     <Compile Include="Net\Douyu\DDanmakuGetter.cs" />
-    <Compile Include="Net\Douyu\DMessageType.cs" />
     <Compile Include="Net\Douyu\MessageTypes\DMessage.cs" />
-    <Compile Include="Net\Message.cs" />
+    <Compile Include="Net\MessageTypes\Message.cs" />
     <Compile Include="Net\MessageInfo.cs" />
     <Compile Include="Net\MessageType.cs" />
+    <Compile Include="Net\MessageTypes\Danmakus.cs" />
     <Compile Include="Net\Utils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,4 +1,6 @@
-﻿namespace ShitLib.Net.Douyu.MessageTypes
+﻿using ShitLib.Net.MessageTypes;
+
+namespace ShitLib.Net.Douyu.MessageTypes
 {
 	public class DMessage : Message
 	{

@@ -1,4 +1,6 @@
-﻿namespace ShitLib.Net.Bilibili.BLiveDanmaku.MessageTypes
+﻿using ShitLib.Net.MessageTypes;
+
+namespace ShitLib.Net.Bilibili.BLiveDanmaku.MessageTypes
 {
     public class BMessage : Message
     {

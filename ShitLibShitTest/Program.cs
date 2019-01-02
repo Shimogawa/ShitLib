@@ -11,16 +11,19 @@ namespace ShitLibShitTest
 
 		static void Main(string[] args)
 		{
-			linker = new DDanmakuGetter(5630372);
+			linker = new DDanmakuGetter(-5);
 			new Thread(() => linker.Connect()).Start();
 			new Thread(A).Start();
 		}
 
 		static void A()
 		{
-			foreach (var info in linker.DanmakuList.KeepGetting())
+			while (true)
 			{
-				Console.WriteLine(info.Message.WholeMessage);
+				if (linker.DanmakuList.IsEmpty()) continue;
+				var f = linker.DanmakuList.GetFirst();
+				//if (f.MessageType == DMessageType.Danmaku) continue;
+				Console.WriteLine(f);
 			}
 		}
 	}
