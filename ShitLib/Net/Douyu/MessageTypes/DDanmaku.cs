@@ -31,10 +31,10 @@ namespace ShitLib.Net.Douyu.MessageTypes
 			var sb = new StringBuilder();
 			if (user.IsSuperModerator) sb.Append("【超管】");
 			if (user.IsRoomModerator) sb.Append("【房管】");
-			if (user.Badge != null && user.Badge.BadgeLevel != 0) sb.Append($"【{user.Badge.BadgeName}|{user.Badge.BadgeLevel}】");
 			if (user.NobelLevel.HasValue && user.NobelLevel.Value <= 6)
 				sb.Append(
 					$"【{(user.NobelLevel.Value <= 6 ? DUser.NOBEL_LEVEL_NAME[user.NobelLevel.Value] : user.NobelLevel.ToString())}】");
+			if (user.Badge != null && user.Badge.BadgeLevel != 0) sb.Append($"【{user.Badge.BadgeName}|{user.Badge.BadgeLevel}】");
 			sb.Append($"【Lv.{User.Level}】{User.Username} 说： {danmaku}");
 			
 			WholeMessage = sb.ToString();

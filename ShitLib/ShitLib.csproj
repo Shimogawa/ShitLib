@@ -54,6 +54,7 @@
     <Compile Include="Net\Douyu\DBadge.cs" />
     <Compile Include="Net\Douyu\DUser.cs" />
     <Compile Include="Net\Douyu\MessageTypes\DDanmaku.cs" />
+    <Compile Include="Net\Douyu\MessageTypes\DWelcome.cs" />
     <Compile Include="Net\IDanmakuGetter.cs" />
     <Compile Include="Net\DanmakuList.cs" />
     <Compile Include="Net\Douyu\DDanmakuGetter.cs" />

@@ -27,7 +27,7 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 		private int _trueID;
 		private long _fake_uid;
 
-		private bool _connected;
+		public bool IsConnected { get; private set; }
 
 		private TcpClient _client;
 		private NetworkStream _stream;
@@ -132,7 +132,7 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 			//            }
 			_state = LiveState.Live;
 
-			_connected = true;
+			IsConnected = true;
 
 			//            regex = new Regex("rver_list>([^,]+)");
 			//            found = regex.Match(response).Value;
@@ -171,7 +171,7 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 
 		private void KeepHeartBeat()
 		{
-			while (_connected)
+			while (IsConnected)
 			{
 				SendData(0, 16, ProtocolVersion, 2, 1, "");
 				Thread.Sleep(30000);
@@ -181,7 +181,7 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 		private void KeepListen()
 		{
 			var buffer = new byte[_client.ReceiveBufferSize];
-			while (_connected)
+			while (IsConnected)
 			{
 				try
 				{
@@ -247,9 +247,9 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 
 		public void Disconnect()
 		{
-			if (_connected)
+			if (IsConnected)
 			{
-				_connected = false;
+				IsConnected = false;
 				_client.Close();
 				_stream.Close();
 			}

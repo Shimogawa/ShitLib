@@ -7,6 +7,8 @@ namespace ShitLib.Net
 		// TODO: Use global 'MessageType' enum.
 		//DanmakuList<Enum, Message> DanmakuList { get; }
 
+		bool IsConnected { get; }
+
 		bool Connect();
 
 		void Disconnect();

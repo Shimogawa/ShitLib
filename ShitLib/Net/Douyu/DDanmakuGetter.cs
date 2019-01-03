@@ -18,7 +18,7 @@ namespace ShitLib.Net.Douyu
 		private const int SERVER_HEADER_CODE = 690;
 
 		private int roomID;
-		private bool isConnected;
+		public bool IsConnected { get; private set; }
 
 		private TcpClient client;
 		private NetworkStream stream;
@@ -44,10 +44,10 @@ namespace ShitLib.Net.Douyu
 
 		public void Disconnect()
 		{
-			if (isConnected)
+			if (IsConnected)
 			{
 				Logout();
-				isConnected = false;
+				IsConnected = false;
 				client.Close();
 				stream.Close();
 			}
@@ -63,7 +63,7 @@ namespace ShitLib.Net.Douyu
 				return false;
 				//throw new Exception("Fuck me");
 			}
-			isConnected = true;
+			IsConnected = true;
 			stream = client.GetStream();
 			listenThread = new Thread(KeepListen);
 			listenThread.Start();
@@ -94,7 +94,7 @@ namespace ShitLib.Net.Douyu
 		private void KeepListen()
 		{
 			var buffer = new byte[client.ReceiveBufferSize];
-			while (isConnected)
+			while (IsConnected)
 			{
 				try
 				{
@@ -102,6 +102,7 @@ namespace ShitLib.Net.Douyu
 					var len1 = BitConverter.ToInt32(buffer, 0);
 					stream.Read(buffer, 4, 4);
 					var len2 = BitConverter.ToInt32(buffer, 4);
+					if (len1 != len2) continue;
 					stream.Read(buffer, 8, 4);
 					var msgType = BitConverter.ToInt32(buffer, 8);
 					//if (msgType != SERVER_HEADER_CODE)
@@ -110,40 +111,53 @@ namespace ShitLib.Net.Douyu
 					stream.ReadB(buffer, 12, len1 - 8);
 					var body = Encoding.UTF8.GetString(buffer, 12, len1 - 8);
 					var dict = ParseMessage(body);
+					if (!dict.ContainsKey("type")) continue;
 					switch (dict["type"])
 					{
-						case "loginres":    // Login result
+						case "loginres": // Login result
 							DanmakuList.AddDanmaku(new MessageInfo<MessageType, DMessage>(
 								MessageType.EnterRoom, new DMessage($"链接房间 {roomID} 成功")));
 							break;
-						case "chatmsg":     // Danmaku
+						case "chatmsg": // Danmaku
 							int color = dict.ContainsKey("col") ? int.Parse(dict["col"]) : 0;
 							var user = GetUser(dict);
 							DanmakuList.AddDanmaku(new MessageInfo<MessageType, DMessage>(
 								MessageType.Danmaku, new DDanmaku(user, dict["txt"], color)));
 							break;
-						case "dgb":			// Gifts
+						case "dgb": // Gifts
 							var amount = dict.ContainsKey("gfcnt") ? int.Parse(dict["gfcnt"]) : 1;
 							user = GetUser(dict);
 							var hits = dict.ContainsKey("hits") ? int.Parse(dict["hits"]) : 1;
 							DanmakuList.AddDanmaku(new MessageInfo<MessageType, DMessage>(
 								MessageType.Gift, new DGift(user, int.Parse(dict["gfid"]), amount, hits)));
 							break;
+						case "uenter":
+							user = GetUser(dict);
+							DanmakuList.AddDanmaku(new MessageInfo<MessageType, DMessage>(
+								MessageType.EnterRoom, new DWelcome(user)
+							));
+							break;
 						default:
 							break;
 					}
 				}
+				catch (ArgumentException ae)
+				{
+					DanmakuList.AddDanmaku(new MessageInfo<MessageType, DMessage>(
+						MessageType.Error, new DMessage("链接被迫中止。")
+					));
+					Disconnect();
+					return;
+				}
 				catch (Exception e)
 				{
-					Console.WriteLine(e);
-					continue;
 				}
 			}
 		}
 
 		private void KeepHeartBeat()
 		{
-			while (isConnected)
+			while (IsConnected)
 			{
 				long timeStamp = Utils.GetTimeStampSeconds();
 				SendData($"type@=keeplive/tick@={timeStamp}/\0");
@@ -192,6 +206,7 @@ namespace ShitLib.Net.Douyu
 				var ss = s.Split(kvSplitter, StringSplitOptions.None);
 				if (ss.Length != 2) continue;
 				ss[1] = ss[1].Replace("@A", "@").Replace("@S", "/");
+				if (dict.ContainsKey(ss[0])) continue;
 				dict.Add(ss[0], ss[1]);
 			}
 			return dict;

@@ -1,4 +1,4 @@
-# ShitLib v0.7.1
+# ShitLib v0.7.3
 
 实现斗鱼与Bilibili弹幕连接接口。
 
@@ -21,7 +21,7 @@ var linker = new BDanmakuGetter(roomId);
 #### 2. Start Listening 开始监听
 
 ```cs
-new Thread(() => linker.Connect()).Start();
+linker.Connect();
 ```
 
 #### 3. Get Danmaku 获取弹幕
@@ -29,16 +29,21 @@ new Thread(() => linker.Connect()).Start();
 **第一种方法 First Way**
 
 ```cs
-while (true) {
+while (linker.IsConnected) {
 	if (linker.DanmakuList.IsEmpty()) continue;
 	var message = linker.DanmakuList.GetFirst();
+	...
 }
 ```
 
 **第二种方法 Second Way**
 
 ```cs
-foreach (var message in linker.DanmakuList.KeepGetting()) { ... }
+foreach (var message in linker.DanmakuList.KeepGetting())
+{
+	if (!linker.IsConnected) break;
+	...
+}
 ```
 
 `message`的类型是`MessageInfo<MessageType, Message>`，如果使用`BDanmakuGetter`，获取的是`BMessage : Message`，如果使用`DDanmakuGetter`，获取的是`DMessage : Message`。

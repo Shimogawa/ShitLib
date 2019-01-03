@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.Generic;
+using System.Text;
 
 namespace ShitLib.Net.Douyu
 {
@@ -42,6 +43,25 @@ namespace ShitLib.Net.Douyu
 			IsSuperModerator = pg;
 			NobelLevel = nl;
 			Badge = badge;
+		}
+
+		public override string ToString()
+		{
+			return GetString(this, true, true, true);
+		}
+
+		public static string GetString(DUser user, bool showModeratorStatus, bool showNobelLevel, bool showBadge)
+		{
+			var sb = new StringBuilder();
+			if (showModeratorStatus && user.IsSuperModerator) sb.Append("【超管】");
+			if (showModeratorStatus && user.IsRoomModerator) sb.Append("【房管】");
+			if (showNobelLevel && user.NobelLevel.HasValue && user.NobelLevel.Value <= 6)
+				sb.Append(
+					$"【{(user.NobelLevel.Value <= 6 ? NOBEL_LEVEL_NAME[user.NobelLevel.Value] : user.NobelLevel.ToString())}】");
+			if (showBadge && user.Badge != null && user.Badge.BadgeLevel != 0)
+				sb.Append($"【{user.Badge.BadgeName}|{user.Badge.BadgeLevel}】");
+			sb.Append($"【Lv.{user.Level}】{user.Username}");
+			return sb.ToString();
 		}
 	}
 }

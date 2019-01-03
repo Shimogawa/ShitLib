@@ -11,14 +11,17 @@ namespace ShitLibShitTest
 
 		static void Main(string[] args)
 		{
-			linker = new DDanmakuGetter(-5);
-			new Thread(() => linker.Connect()).Start();
-			new Thread(A).Start();
+			linker = new DDanmakuGetter(78561);
+			while (true)
+			{
+				linker.Connect();
+				A();
+			}
 		}
 
 		static void A()
 		{
-			while (true)
+			while (linker.IsConnected)
 			{
 				if (linker.DanmakuList.IsEmpty()) continue;
 				var f = linker.DanmakuList.GetFirst();
