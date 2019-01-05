@@ -25,6 +25,7 @@ namespace ShitLib.Net.Douyu.MessageTypes
 		public DDanmaku(DUser user, string danmaku, int color = 0)
 		{
 			User = user;
+			Username = user.Username;
 			Danmaku = danmaku;
 			Color = color;
 

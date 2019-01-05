@@ -8,6 +8,7 @@ namespace ShitLib.Net.Douyu.MessageTypes
 		public DWelcome(DUser user)
 		{
 			User = user;
+			Username = user.Username;
 			WholeMessage = $"{DUser.GetString(user, true, true, false)} 进入直播间。";
 		}
 	}

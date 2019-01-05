@@ -93,32 +93,20 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 			//var found = regex.Matches(response)[0].Value;
 			//_trueID = int.Parse(found.Substring(found.IndexOf(':') + 1));
 			_trueID = _roomUrlID;
-			string response;
-
-			var request = (HttpWebRequest)WebRequest.Create(CID_URL + _trueID);
-			request.Method = "GET";
-			request.UserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36";
-			request.Timeout = 10000;
-			using (var responseStream = request.GetResponse().GetResponseStream())
-			{
-				using (var reader = new StreamReader(responseStream, Encoding.UTF8))
-				{
-					response = reader.ReadToEnd();
-				}
-			}
+			//string response;
 
 
-			//            regex = new Regex("ate>([a-zA-Z]+)");
-			//            found = regex.Match(response).Value;
-			//            var state = found.Substring(found.IndexOf('>') + 1);
-			var doc = new XmlDocument();
-			response = "<root>" + response + "</root>";
-			doc.LoadXml(response);
-			_host = doc["root"]["dm_server"].InnerText;
-			//            Console.WriteLine(_host);
-			var state = doc["root"]["state"].InnerText;
-			//            Console.WriteLine(state);
-			_port = int.Parse(doc["root"]["dm_port"].InnerText);
+			////            regex = new Regex("ate>([a-zA-Z]+)");
+			////            found = regex.Match(response).Value;
+			////            var state = found.Substring(found.IndexOf('>') + 1);
+			//var doc = new XmlDocument();
+			//response = "<root>" + response + "</root>";
+			//doc.LoadXml(response);
+			//_host = doc["root"]["dm_server"].InnerText;
+			////            Console.WriteLine(_host);
+			//var state = doc["root"]["state"].InnerText;
+			////            Console.WriteLine(state);
+			//_port = int.Parse(doc["root"]["dm_port"].InnerText);
 			//            Console.WriteLine(_port);
 
 			//            if (state == "LIVE")

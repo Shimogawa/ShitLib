@@ -50,6 +50,7 @@ namespace ShitLib.Net.Douyu
 				IsConnected = false;
 				client.Close();
 				stream.Close();
+				if (heartbeatThread.IsAlive) heartbeatThread.Abort();
 			}
 		}
 
@@ -116,7 +117,7 @@ namespace ShitLib.Net.Douyu
 					{
 						case "loginres": // Login result
 							DanmakuList.AddDanmaku(new MessageInfo<MessageType, DMessage>(
-								MessageType.EnterRoom, new DMessage($"链接房间 {roomID} 成功")));
+								MessageType.Log, new DMessage($"链接房间 {roomID} 成功")));
 							break;
 						case "chatmsg": // Danmaku
 							int color = dict.ContainsKey("col") ? int.Parse(dict["col"]) : 0;

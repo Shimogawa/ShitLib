@@ -16,6 +16,7 @@ namespace ShitLib.Net.Douyu.MessageTypes
 		public DGift(DUser user, int giftId, string gift, int amount, int hits)
 		{
 			User = user;
+			Username = user.Username;
 			GiftID = giftId;
 			GiftName = gift;
 			Amount = amount;
