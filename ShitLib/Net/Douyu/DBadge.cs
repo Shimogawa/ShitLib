@@ -1,12 +1,10 @@
 ﻿
+using ShitLib.Net.Users;
+
 namespace ShitLib.Net.Douyu
 {
-	public class DBadge
-	{
-		public string BadgeName { get; }
-
-		public int BadgeLevel { get; }
-
+	public class DBadge : Badge
+	{ 
 		public DBadge(string badgeName, int badgeLevel)
 		{
 			BadgeName = badgeName;

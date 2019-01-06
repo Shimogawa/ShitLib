@@ -2,33 +2,28 @@
 
 namespace ShitLib.Net.Bilibili.BLiveDanmaku.MessageTypes
 {
-    public class BDanmaku : BMessage
-    {
-        /// <summary>
-        /// Always have 3 elements.
-        /// [0]: is room admin (null if not)
-        /// [1]: is svip (null if not)
-        /// [2]: xunzhang name and level (null if not existing)
-        /// </summary>
-        public string[] Prefix { get; }
+	public class BDanmaku : BMessage
+	{
+		public BUser User { get; }
 
-        public string Danmaku { get; }
+		public string Danmaku { get; }
 
-        public BDanmaku(string[] prefix, string username, string danmaku)
-        {
-            Prefix = prefix;
-            Username = username;
-            Danmaku = danmaku;
+		public BDanmaku(BUser user, string danmaku)
+		{
+			User = user;
+			Username = user.Username;
+			Danmaku = danmaku;
 
-            var sb = new StringBuilder();
-            foreach (var s in prefix)
-            {
-                if (s != null)
-                    sb.Append(s);
-            }
+			var sb = new StringBuilder();
+			if (user.IsAdmin) sb.Append("【房管】");
+			if (user.IsSVIP) sb.Append("【爷】");
+			if (user.Badge != null)
+				sb.Append(
+					string.Format("【{0} {1}】", user.Badge.BadgeName, user.Badge.BadgeLevel
+				));
 
-            sb.Append($" {username} 说： {danmaku}");
-            WholeMessage = sb.ToString();
-        }
-    }
+			sb.Append($"{user.Username} 说： {danmaku}");
+			WholeMessage = sb.ToString();
+		}
+	}
 }

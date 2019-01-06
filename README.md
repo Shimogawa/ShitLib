@@ -1,4 +1,4 @@
-# ShitLib v0.7.3
+# ShitLib v0.7.5
 
 实现斗鱼与Bilibili弹幕连接接口。
 
@@ -6,7 +6,7 @@ An implementation of the danmaku api of Douyu and Bilibili Live platform.
 
 ## Usage 使用说明
 
-#### 1. Setup 启用
+### 1. Setup 启用
 
 斗鱼平台使用`DDanmakuGetter`，b站直播使用`BDanmakuGetter`。
 
@@ -18,13 +18,13 @@ var linker = new BDanmakuGetter(roomId);
 
 声明可以使用`DanmakuGetter`，是它们的基类。
 
-#### 2. Start Listening 开始监听
+### 2. Start Listening 开始监听
 
 ```cs
 linker.Connect();
 ```
 
-#### 3. Get Danmaku 获取弹幕
+### 3. Get Danmaku 获取弹幕
 
 **第一种方法 First Way**
 
@@ -54,8 +54,14 @@ foreach (var message in linker.DanmakuList.KeepGetting())
 
 别的没有文档，看源码吧。
 
-#### 4. Stop 退出
+### 4. Stop 退出
 
 ```cs
 linker.Disconnect();
 ```
+
+## Update Logs 更新日志
+
+### v0.7.5
+
+- 修复b站无法找到正确房间号的问题。

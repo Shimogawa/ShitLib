@@ -1,6 +1,7 @@
 ﻿
 using System.Collections.Generic;
 using System.Text;
+using ShitLib.Net.Users;
 
 namespace ShitLib.Net.Douyu
 {
@@ -31,9 +32,9 @@ namespace ShitLib.Net.Douyu
 
 		public int? NobelLevel { get; }
 
-		public DBadge Badge { get; }
+		public Badge Badge { get; }
 
-		public DUser(string username, int uid, int level, string icon, bool rg, bool pg, int? nl, DBadge badge)
+		public DUser(string username, int uid, int level, string icon, bool rg, bool pg, int? nl, Badge badge)
 		{
 			Username = username;
 			Uid = uid;

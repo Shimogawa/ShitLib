@@ -44,7 +44,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Net\Bilibili\BException.cs" />
+    <Compile Include="Net\Bilibili\BLiveDanmaku\BBadge.cs" />
     <Compile Include="Net\Bilibili\BLiveDanmaku\BDanmakuGetter.cs" />
+    <Compile Include="Net\Bilibili\BLiveDanmaku\BUser.cs" />
     <Compile Include="Net\Bilibili\BLiveDanmaku\MessageTypes\BDanmaku.cs" />
     <Compile Include="Net\Bilibili\BLiveDanmaku\MessageTypes\BGift.cs" />
     <Compile Include="Net\Bilibili\BLiveDanmaku\MessageTypes\BMessage.cs" />
@@ -63,6 +65,7 @@
     <Compile Include="Net\MessageInfo.cs" />
     <Compile Include="Net\MessageType.cs" />
     <Compile Include="Net\MessageTypes\Danmakus.cs" />
+    <Compile Include="Net\Users\Badge.cs" />
     <Compile Include="Net\Utils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

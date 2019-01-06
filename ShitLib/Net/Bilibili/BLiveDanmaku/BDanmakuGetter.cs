@@ -14,14 +14,20 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 {
 	public class BDanmakuGetter : IDanmakuGetter
 	{
-		private const string LIVE_URL = "http://live.bilibili.com/";
-		private const string CID_URL = "http://live.bilibili.com/api/player?id=cid:";
-		private const int ProtocolVersion = 1;
+		private const string LIVE_URL =           "http://live.bilibili.com/";
+		private const string CID_URL =            "http://live.bilibili.com/api/player?id=cid:";
+		private const string GET =                "GET";
+		private const string REQUEST_CONNECTION = "keep_alive";
+		private const string REQUEST_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36";
+		private const string REQUEST_ACCEPT =     "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8";
+		private const string DEFAULT_HOST =       "livecmt-1.bilibili.com";
+		private const int DEFAULT_PORT =          2243;
+		private const int PROTOCOL_VERSION =      1;
 
-		private static bool littleEndian = BitConverter.IsLittleEndian;
+		private static readonly bool isLittleEndian = BitConverter.IsLittleEndian;
 
-		private string _host = "livecmt-1.bilibili.com";
-		private int _port = 2243;
+		private string _host = DEFAULT_HOST;
+		private int _port = DEFAULT_PORT;
 
 		private int _roomUrlID;
 		private int _trueID;
@@ -29,9 +35,10 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 
 		public bool IsConnected { get; private set; }
 
+		public LiveState State { get; private set; }
+
 		private TcpClient _client;
 		private NetworkStream _stream;
-		private LiveState _state;
 
 		public DanmakuList<MessageType, BMessage> DanmakuList { get; private set; }
 
@@ -63,9 +70,10 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 				}
 			}
 
-			if (_state == LiveState.Offline)
+			if (State == LiveState.Offline)
 			{
-				Console.WriteLine("The streamer is not online.");
+				DanmakuList.AddDanmaku(new MessageInfo<MessageType, BMessage>(
+					MessageType.Log, new BOtherMsg("主播不在线。")));
 				return false;
 			}
 			StartListen();
@@ -74,58 +82,69 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 
 		private void internal_Connect()
 		{
-			//var request = (HttpWebRequest)WebRequest.Create(LIVE_URL + _roomUrlID);
-			//request.Method = "GET";
-			//request.UserAgent =
-			//	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36";
-			//request.Timeout = 10000;
-			//string response;
-			//var a = request.GetResponse();
-			//using (var responseStream = a.GetResponseStream())
-			//{
-			//	using (var reader = new StreamReader(responseStream, Encoding.UTF8))
-			//	{
-			//		response = reader.ReadToEnd();
-			//	}
-			//}
+			try
+			{
+				var request = (HttpWebRequest)WebRequest.Create(LIVE_URL + _roomUrlID.ToString());
+				request.Method = GET;
+				request.Connection = REQUEST_CONNECTION;
+				request.Accept = REQUEST_ACCEPT;
+				request.UserAgent = REQUEST_USER_AGENT;
+				request.Timeout = 10000;
+				string response;
+				var a = request.GetResponse();
+				using (var responseStream = a.GetResponseStream())
+				{
+					using (var reader = new StreamReader(responseStream, Encoding.UTF8))
+					{
+						response = reader.ReadToEnd();
+					}
+				}
 
-			//var regex = new Regex("\"room_id\":(\\d+)");
-			//var found = regex.Matches(response)[0].Value;
-			//_trueID = int.Parse(found.Substring(found.IndexOf(':') + 1));
-			_trueID = _roomUrlID;
-			//string response;
+				var regex = new Regex("\"room_id\":(\\d+)");
+				var found = regex.Matches(response)[0].Value;
+				_trueID = int.Parse(found.Substring(found.IndexOf(':') + 1));
 
+				request = (HttpWebRequest)WebRequest.Create(CID_URL + _trueID);
+				request.Method = GET;
+				request.Connection = REQUEST_CONNECTION;
+				request.Accept = REQUEST_ACCEPT;
+				request.UserAgent = REQUEST_USER_AGENT;
+				request.Timeout = 10000;
+				using (var responseStream = request.GetResponse().GetResponseStream())
+				{
+					using (var reader = new StreamReader(responseStream, Encoding.UTF8))
+					{
+						response = reader.ReadToEnd();
+					}
+				}
 
-			////            regex = new Regex("ate>([a-zA-Z]+)");
-			////            found = regex.Match(response).Value;
-			////            var state = found.Substring(found.IndexOf('>') + 1);
-			//var doc = new XmlDocument();
-			//response = "<root>" + response + "</root>";
-			//doc.LoadXml(response);
-			//_host = doc["root"]["dm_server"].InnerText;
-			////            Console.WriteLine(_host);
-			//var state = doc["root"]["state"].InnerText;
-			////            Console.WriteLine(state);
-			//_port = int.Parse(doc["root"]["dm_port"].InnerText);
-			//            Console.WriteLine(_port);
+				var doc = new XmlDocument();
+				response = "<root>" + response + "</root>";
+				doc.LoadXml(response);
+				_host = doc["root"]["dm_server"].InnerText;
+				_port = int.Parse(doc["root"]["dm_port"].InnerText);
+				var state = doc["root"]["state"].InnerText;
 
-			//            if (state == "LIVE")
-			//                _state = LiveState.Live;
-			//            else if (state == "ROUND")
-			//                _state = LiveState.Round;
-			//            else
-			//            {
-			//                _state = LiveState.Offline;
-			//                return;
-			//            }
-			_state = LiveState.Live;
+				if (state == "LIVE")
+					State = LiveState.Live;
+				else if (state == "ROUND")
+					State = LiveState.Round;
+				else
+				{
+					State = LiveState.Offline;
+					return;
+				}
 
-			IsConnected = true;
-
-			//            regex = new Regex("rver_list>([^,]+)");
-			//            found = regex.Match(response).Value;
-			//            _host = found.Substring(found.IndexOf('>') + 1);
-			//            Console.WriteLine(_host);
+				IsConnected = true;
+			}
+			catch (Exception)
+			{
+				_trueID = _roomUrlID;
+				_host = DEFAULT_HOST;
+				_port = DEFAULT_PORT;
+				State = LiveState.Live;
+				IsConnected = true;
+			}
 		}
 
 		private void StartListen()
@@ -141,8 +160,6 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 				throw new Exception("Fuck me");
 			}
 
-			DanmakuList.AddDanmaku(new MessageInfo<MessageType, BMessage>(
-				MessageType.Log, new BOtherMsg($"链接房间 {_roomUrlID} 成功")));
 			_stream = _client.GetStream();
 
 			var listenThread = new Thread(KeepListen);
@@ -155,13 +172,16 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 			//            heartBeatThread.IsBackground = true;
 			heartBeatThread.Start();
 
+			DanmakuList.AddDanmaku(new MessageInfo<MessageType, BMessage>(
+				MessageType.Log, new BOtherMsg($"链接房间 {_roomUrlID} 成功")));
+
 		}
 
 		private void KeepHeartBeat()
 		{
 			while (IsConnected)
 			{
-				SendData(0, 16, ProtocolVersion, 2, 1, "");
+				SendData(0, 16, PROTOCOL_VERSION, 2, 1, "");
 				Thread.Sleep(30000);
 			}
 		}
@@ -254,27 +274,27 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 			var sendbytes = new byte[length];
 
 			u32byte = BitConverter.GetBytes(length);
-			if (littleEndian)
+			if (isLittleEndian)
 				Array.Reverse(u32byte);
 			Array.Copy(u32byte, 0, sendbytes, 0, 4);
 
 			u16byte = BitConverter.GetBytes(magic);
-			if (littleEndian)
+			if (isLittleEndian)
 				Array.Reverse(u16byte);
 			Array.Copy(u16byte, 0, sendbytes, 4, 2);
 
 			u16byte = BitConverter.GetBytes(version);
-			if (littleEndian)
+			if (isLittleEndian)
 				Array.Reverse(u16byte);
 			Array.Copy(u16byte, 0, sendbytes, 6, 2);
 
 			u32byte = BitConverter.GetBytes(action);
-			if (littleEndian)
+			if (isLittleEndian)
 				Array.Reverse(u32byte);
 			Array.Copy(u32byte, 0, sendbytes, 8, 4);
 
 			u32byte = BitConverter.GetBytes(param);
-			if (littleEndian)
+			if (isLittleEndian)
 				Array.Reverse(u32byte);
 			Array.Copy(u32byte, 0, sendbytes, 12, 4);
 
@@ -299,7 +319,7 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 			_fake_uid = (long)(100000000000000.0 + 200000000000000.0 * new Random().NextDouble());
 			var body = $"{{\"roomid\":{_trueID},\"uid\":{_fake_uid}}}";
 
-			SendData(0, 16, ProtocolVersion, 7, 1, body);
+			SendData(0, 16, PROTOCOL_VERSION, 7, 1, body);
 			return true;
 		}
 
@@ -336,28 +356,22 @@ namespace ShitLib.Net.Bilibili.BLiveDanmaku
 				var danmaku = jobj["info"][1].Value<string>();
 
 				var userInfo = jobj["info"][2];
-				var user = userInfo[1].Value<string>();
+				var username = userInfo[1].Value<string>();
 				var isAdmin = userInfo[2].Value<int>() == 1;
 				var isVIP = userInfo[3].Value<int>() == 1;
 				var isSVIP = userInfo[4].Value<int>() == 1;
 
-				var prefix = new string[3];
-				prefix[0] = (isAdmin ? "【房管】" : null);
-				prefix[1] = (isSVIP ? "【SVIP】" : null);
-
 				var prefixInfo = jobj["info"][3];
+				var badge = (BBadge)null;
 				if (prefixInfo.Count() != 0)
 				{
 					var xunzhang = prefixInfo[1].Value<string>();
 					var xunzhangLvl = prefixInfo[0].Value<int>();
-					prefix[2] = $"【{xunzhang} {xunzhangLvl}】";
+					badge = new BBadge(xunzhang, xunzhangLvl);
 				}
-				else
-				{
-					prefix[2] = null;
-				}
+				var user = new BUser(username, isAdmin, isSVIP, badge);
 
-				info = new MessageInfo<MessageType, BMessage>(MessageType.Danmaku, new BDanmaku(prefix, user, danmaku));
+				info = new MessageInfo<MessageType, BMessage>(MessageType.Danmaku, new BDanmaku(user, danmaku));
 			}
 			else if (cmd == "SEND_GIFT")
 			{
